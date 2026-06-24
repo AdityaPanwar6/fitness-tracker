@@ -8,6 +8,8 @@ public class WorkoutExercise {
     private int reps;
     private double weight;
 
+    public WorkoutExercise(){}
+
     //Constructor for new entry
     public WorkoutExercise(int workoutId, int exerciseId, int sets, int reps, double weight){
         this.workoutId = workoutId;
@@ -33,8 +35,23 @@ public class WorkoutExercise {
     public int getReps(){return reps;}
     public double getWeight(){return weight;}
 
-    //Setter
+    //Setterz
     public void setId(int id){
         this.id = id;
+    }
+    public void setWorkoutId(int workoutId){
+        this.workoutId = workoutId;
+    }
+    public void setExerciseId(int exerciseId){
+        this.exerciseId = exerciseId;
+    }
+    public void setSets(int sets){
+        this.sets = sets;
+    }
+    public void setReps(int reps){
+        this.reps = reps;
+    }
+    public void setWeight(double weight){
+        this.weight = weight;
     }
 }
