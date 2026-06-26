@@ -9,6 +9,7 @@ import java.util.List;
 
 public class PersonalRecordDAO {
 
+    //ADD YOUR PERSONAL RECORD
     public void addRecord(PersonalRecord pr) {
         String query = "INSERT INTO personal_records (user_id, exercise_id, max_weight, max_reps, date) VALUES (?, ?, ?, ?, ?)";
 
@@ -29,6 +30,7 @@ public class PersonalRecordDAO {
         }
     }
 
+    //GET RECORDS
     public List<PersonalRecord> getRecordsByUser(int userId) {
         List<PersonalRecord> list = new ArrayList<>();
         String query = "SELECT * FROM personal_records WHERE user_id = ?";
@@ -60,6 +62,7 @@ public class PersonalRecordDAO {
         return list;
     }
 
+    //DELETE RECORDS
     public void deleteRecord(int recordId) {
         String query = "DELETE FROM personal_records WHERE record_id = ?";
 

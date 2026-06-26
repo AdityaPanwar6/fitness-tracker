@@ -1,0 +1,51 @@
+package service;
+
+import dao.WorkoutDAO;
+import dao.WorkoutExerciseDAO;
+import model.Workout;
+import model.WorkoutExercise;
+
+import java.util.List;
+
+public class WorkoutService {
+
+    private WorkoutDAO workoutDAO = new WorkoutDAO();
+    private WorkoutExerciseDAO workoutExerciseDAO = new WorkoutExerciseDAO();
+
+    // Create workout
+    public int createWorkout(Workout workout) {
+
+        if (workout.getUserId() <= 0) {
+            System.out.println("Invalid user ID!");
+            return -1;
+        }
+
+        return workoutDAO.addWorkout(workout);
+    }
+
+    // Add exercises to workout
+    public void addExercisesToWorkout(int workoutId, List<WorkoutExercise> exercises) {
+
+        if (workoutId <= 0) {
+            System.out.println("Invalid workout ID!");
+            return;
+        }
+
+        for (WorkoutExercise we : exercises) {
+            we.setWorkoutId(workoutId);
+            workoutExerciseDAO.addExerciseToWorkout(we);
+        }
+
+        System.out.println("Exercises added to workout!");
+    }
+
+    // Get workouts of user
+    public List<Workout> getUserWorkouts(int userId) {
+        return workoutDAO.getWorkoutsByUser(userId);
+    }
+
+    // Get all workouts
+    public List<Workout> getAllWorkouts() {
+        return workoutDAO.getAllWorkouts();
+    }
+}

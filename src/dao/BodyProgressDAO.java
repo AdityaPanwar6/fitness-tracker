@@ -9,6 +9,7 @@ import java.util.List;
 
 public class BodyProgressDAO {
 
+    //LOG CURRENT BODY PROGRESS
     public void addProgress(BodyProgress bp) {
         String query = "INSERT INTO body_progress (user_id, date, weight, body_fat, chest, waist) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -30,6 +31,7 @@ public class BodyProgressDAO {
         }
     }
 
+    //GET YOUR PROGRESS
     public List<BodyProgress> getProgressByUser(int userId) {
         List<BodyProgress> list = new ArrayList<>();
         String query = "SELECT * FROM body_progress WHERE user_id = ? ORDER BY date DESC";
@@ -62,6 +64,7 @@ public class BodyProgressDAO {
         return list;
     }
 
+    //DELETE ANY PREVIOUS PROGRESS LOG
     public void deleteProgress(int progressId) {
         String query = "DELETE FROM body_progress WHERE progress_id = ?";
 
