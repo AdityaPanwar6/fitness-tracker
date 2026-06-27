@@ -133,6 +133,18 @@ src/app/FitnessTracker.java
 
 It is recommended to pre-load basic exercises into the database for better usability.
 
+Here, I have provided query to add basic exercises to you database.(Highly recommend you to add more by yourself.)
+-- Ensure your target database is selected
+-- USE fitness_tracker
+
+INSERT INTO exercises (name, muscle_group, equipment, description) VALUES
+('Bench Press', 'Chest', 'Barbell', 'Lie flat on a bench and press the barbell upwards to build pectoral and tricep strength.'),
+('Squats', 'Legs', 'Barbell', 'Place barbell on upper back, drop hips lower than knees, and drive upward to target quadriceps and glutes.'),
+('Deadlift', 'Back', 'Barbell', 'Lift a loaded barbell off the ground to hip level keeping a flat back, engaging the entire posterior chain.'),
+('Overhead Press', 'Shoulders', 'Barbell', 'Press the barbell directly overhead from shoulder level while standing to develop deltoids.'),
+('Bicep Curls', 'Arms', 'Dumbbell', 'Isolate and curl dumbbells upwards towards the shoulders to develop the biceps brachii muscles.'),
+('Lat Pulldown', 'Back', 'Cable Machine', 'Pull the overhead bar attachment down vertically to upper chest level to expand back width and lat muscles.');
+
 ---
 
 ## >  Future Improvements
