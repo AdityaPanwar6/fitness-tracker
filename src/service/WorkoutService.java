@@ -48,4 +48,9 @@ public class WorkoutService {
     public List<Workout> getAllWorkouts() {
         return workoutDAO.getAllWorkouts();
     }
+
+    //GET WORKOUT STREAK
+    public int getUserStreak(int userId) {
+    return workoutDAO.calculateCurrentStreak(userId);
+}
 }

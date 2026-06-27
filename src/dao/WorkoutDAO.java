@@ -90,4 +90,44 @@ public class WorkoutDAO {
 
         return list;
     }
+
+    //STREAK LOGIC
+    public int calculateCurrentStreak(int userId) {
+    String query = "SELECT DISTINCT date FROM workouts WHERE user_id = ? ORDER BY date DESC";
+    int streak = 0;
+    java.time.LocalDate expectedDate = java.time.LocalDate.now();
+
+    try {
+        java.sql.Connection conn = DBConnection.getConnection();
+        java.sql.PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setInt(1, userId);
+        java.sql.ResultSet rs = stmt.executeQuery();
+
+        boolean firstRow = true;
+
+        while (rs.next()) {
+            java.time.LocalDate workoutDate = rs.getDate("date").toLocalDate();
+
+            if (firstRow) {
+                firstRow = false;
+                if (workoutDate.isBefore(expectedDate.minusDays(1))) {
+                    return 0; 
+                } 
+                if (workoutDate.equals(expectedDate.minusDays(1))) {
+                    expectedDate = expectedDate.minusDays(1);
+                }
+            }
+
+            if (workoutDate.equals(expectedDate)) {
+                streak++;
+                expectedDate = expectedDate.minusDays(1); 
+            } else if (workoutDate.isBefore(expectedDate)) {
+                break; 
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return streak;
+}
 }
