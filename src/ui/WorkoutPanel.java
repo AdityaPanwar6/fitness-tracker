@@ -17,239 +17,159 @@ import java.util.List;
 
 /**
  * Three sections stacked vertically:
- *
  * Create Workout  – duration field + "Start Workout" button
- *                      On success: section 2 appears and section 1 is locked
- *
  * Add Exercises   – exercise dropdown, sets/reps/weight fields, "Add" button
- *                      Each added exercise shows in a small staging table
- *                      "Finish Workout" saves all exercises and resets the panel
- *
  * Workout History – scrollable table of all past workouts
  */
-public class WorkoutPanel extends JPanel{
+public class WorkoutPanel extends JPanel {
 
     private final WorkoutService workoutService = new WorkoutService();
     private final ExerciseService exerciseService = new ExerciseService();
 
-    private int activeWorkoutId  = -1;
+    private int activeWorkoutId = -1;
     private final List<WorkoutExercise> stagedExercises = new ArrayList<>();
 
-    private final JTextField durationField  = new JTextField(8);
+    private final JTextField durationField = new JTextField(8);
     private JButton startBtn;
     private JPanel section1;
 
     private JComboBox<Exercise> exerciseCombo;
     private final JTextField setsField = new JTextField(5);
     private final JTextField repsField = new JTextField(5);
-    private final JTextField weightField = new JTextField(5);
+    private final JTextField weightField = new JTextField(6);
+
     private DefaultTableModel stagingModel;
-    private JPanel section2;
-    private JLabel workoutIdLabel;
-
     private DefaultTableModel historyModel;
+    private JPanel section2;
 
-    public WorkoutPanel(){
-        setLayout(new BorderLayout(0, 8));
-        setBorder(new EmptyBorder(12, 18, 12, 18));
+    public WorkoutPanel() {
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        JPanel topArea = new JPanel();
-        topArea.setLayout(new BoxLayout(topArea, BoxLayout.Y_AXIS));
+        buildSection1();
+        buildSection2();
+        buildSection3();
 
-        section1 = buildSection1();
-        section2 = buildSection2();
-        section2.setVisible(false);
-
-        topArea.add(section1);
-        topArea.add(Box.createVerticalStrut(8));
-        topArea.add(section2);
-
-        add(topArea, BorderLayout.NORTH);
-        add(buildSection3(), BorderLayout.CENTER);
-
+        loadExercisesIntoCombo();
         loadHistory();
     }
 
-   //SECTION 1 CREATE WORKOUT
-    private JPanel buildSection1() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
-        panel.setBorder(new TitledBorder("1.Create Workout Session"));
+    private void buildSection1() {
+        section1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        section1.setBorder(new TitledBorder("1. Create New Workout Session"));
 
-        panel.add(new JLabel("Duration (minutes):"));
-        panel.add(durationField);
+        section1.add(new JLabel("Duration (mins):"));
+        section1.add(durationField);
 
-        startBtn = new JButton("Start Workout");
-        startBtn.setBackground(new Color(52, 152, 219));
+        startBtn = new JButton("🏋️ Start Workout");
+        startBtn.setBackground(new Color(51, 122, 183));
         startBtn.setForeground(Color.WHITE);
         startBtn.setFocusPainted(false);
-        startBtn.setBorderPainted(false);
-        panel.add(startBtn);
-
         startBtn.addActionListener(e -> startWorkout());
-        return panel;
+        section1.add(startBtn);
+
+        add(section1);
     }
 
-    //SECTION 2 ADD EXS TO WORKOUT
-    private JPanel buildSection2() {
-        JPanel outer = new JPanel(new BorderLayout(0, 6));
-        outer.setBorder(new TitledBorder("2.Add Exercises to Workout"));
+    private void buildSection2() {
+        section2 = new JPanel(new BorderLayout(10, 10));
+        section2.setBorder(new TitledBorder("2. Add Exercises Performed"));
+        section2.setVisible(false);
 
-        JPanel inputRow = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 8, 4, 8);
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        workoutIdLabel = new JLabel("Workout ID: —");
-        workoutIdLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
-        workoutIdLabel.setForeground(new Color(52, 152, 219));
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 4;
-        inputRow.add(workoutIdLabel, gbc);
-
+        JPanel inputForm = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         exerciseCombo = new JComboBox<>();
-        exerciseCombo.setPreferredSize(new Dimension(220, 26));
+        exerciseCombo.setPreferredSize(new Dimension(200, 25));
 
-        gbc.gridwidth = 1; gbc.gridy = 1;
-        gbc.gridx = 0; inputRow.add(new JLabel("Exercise:"), gbc);
-        gbc.gridx = 1; gbc.gridwidth = 3;
-        inputRow.add(exerciseCombo, gbc);
+        inputForm.add(new JLabel("Exercise:"));
+        inputForm.add(exerciseCombo);
+        inputForm.add(new JLabel("Sets:"));
+        inputForm.add(setsField);
+        inputForm.add(new JLabel("Reps:"));
+        inputForm.add(repsField);
+        inputForm.add(new JLabel("Weight (kg):"));
+        inputForm.add(weightField);
 
-        gbc.gridwidth = 1; gbc.gridy = 2;
-        gbc.gridx = 0; inputRow.add(new JLabel("Sets:"), gbc);
-        gbc.gridx = 1; inputRow.add(setsField, gbc);
-        gbc.gridx = 2; inputRow.add(new JLabel("Reps:"), gbc);
-        gbc.gridx = 3; inputRow.add(repsField, gbc);
+        JButton addExBtn = new JButton("➕ Add");
+        addExBtn.addActionListener(e -> addExerciseToStaging());
+        inputForm.add(addExBtn);
 
-        gbc.gridy = 3;
-        gbc.gridx = 0; inputRow.add(new JLabel("Weight (kg):"), gbc);
-        gbc.gridx = 1; inputRow.add(weightField, gbc);
-
-        JButton addBtn = new JButton("Add Exercise");
-        addBtn.setBackground(new Color(39, 174, 96));
-        addBtn.setForeground(Color.WHITE);
-        addBtn.setFocusPainted(false);
-        addBtn.setBorderPainted(false);
-        gbc.gridx = 2; gbc.gridwidth = 2;
-        inputRow.add(addBtn, gbc);
-
-        addBtn.addActionListener(e -> addExerciseToStaging());
-
-        String[] cols = {"Exercise", "Sets", "Reps", "Weight (kg)"};
-        stagingModel = new DefaultTableModel(cols, 0) {
-            @Override public boolean isCellEditable(int r, int c){ return false; }
-        };
+        // Crucial Change: Staging table columns explicitly define Exercise Name now
+        String[] columns = {"Exercise Name", "Sets", "Reps", "Weight (kg)"};
+        stagingModel = new DefaultTableModel(columns, 0);
         JTable stagingTable = new JTable(stagingModel);
-        stagingTable.setRowHeight(22);
-        stagingTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 11));
-        JScrollPane stagingScroll = new JScrollPane(stagingTable);
-        stagingScroll.setPreferredSize(new Dimension(0, 110));
 
-        JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 4));
-
-        JButton removeLastBtn = new JButton("Remove Last");
-        removeLastBtn.addActionListener(e -> removeLastStaged());
-
-        JButton finishBtn = new JButton("✔ Finish Workout");
-        finishBtn.setBackground(new Color(231, 76, 60));
+        JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton finishBtn = new JButton("✅ Finish and Save Workout");
+        finishBtn.setBackground(new Color(92, 184, 92));
         finishBtn.setForeground(Color.WHITE);
+        finishBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
         finishBtn.setFocusPainted(false);
-        finishBtn.setBorderPainted(false);
         finishBtn.addActionListener(e -> finishWorkout());
+        bottomBar.add(finishBtn);
 
-        btnRow.add(removeLastBtn);
-        btnRow.add(finishBtn);
+        section2.add(inputForm, BorderLayout.NORTH);
+        section2.add(new JScrollPane(stagingTable), BorderLayout.CENTER);
+        section2.add(bottomBar, BorderLayout.SOUTH);
 
-        outer.add(inputRow, BorderLayout.NORTH);
-        outer.add(stagingScroll, BorderLayout.CENTER);
-        outer.add(btnRow, BorderLayout.SOUTH);
-        return outer;
+        add(section2);
     }
 
-    //SECTION 3
-    private JPanel buildSection3(){
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(new TitledBorder("3.Workout History"));
+    private void buildSection3() {
+        JPanel section3 = new JPanel(new BorderLayout());
+        section3.setBorder(new TitledBorder("3. Past Workouts Log History"));
 
-        String[] cols = {"Workout ID", "Date", "Duration (min)"};
-        historyModel = new DefaultTableModel(cols, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
-        };
-
+        String[] columns = {"Workout ID", "Date Record", "Duration Captured (Minutes)"};
+        historyModel = new DefaultTableModel(columns, 0);
         JTable historyTable = new JTable(historyModel);
-        historyTable.setRowHeight(24);
-        historyTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 12));
 
-        JButton refreshBtn = new JButton("Refresh");
-        refreshBtn.addActionListener(e -> loadHistory());
-
-        panel.add(new JScrollPane(historyTable), BorderLayout.CENTER);
-        panel.add(refreshBtn, BorderLayout.SOUTH);
-        return panel;
+        section3.add(new JScrollPane(historyTable), BorderLayout.CENTER);
+        add(section3);
     }
 
-    //LOGIC
-
-    /** Step 1 — create the workout row in DB, unlock section 2. */
-    private void startWorkout(){
-        if (!Session.isLoggedIn()){
-            JOptionPane.showMessageDialog(this, "Please log in first.");
-            return;
-        }
+    private void startWorkout() {
+        if (!Session.isLoggedIn()) return;
         try {
             int duration = Integer.parseInt(durationField.getText().trim());
             if (duration <= 0) throw new NumberFormatException();
 
-            Workout w = new Workout();
-            w.setUserId(Session.getCurrentUser().getId());
-            w.setDuration(duration);
-            w.setDate(LocalDate.now());
-
+            Workout w = new Workout(Session.getCurrentUser().getId(), LocalDate.now(), duration);
             activeWorkoutId = workoutService.createWorkout(w);
-            if (activeWorkoutId == -1) {
-                JOptionPane.showMessageDialog(this, "Failed to create workout. Check DB connection.",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-                return;
+
+            if (activeWorkoutId > 0) {
+                durationField.setEnabled(false);
+                startBtn.setEnabled(false);
+                section2.setVisible(true);
+                revalidate();
+                repaint();
+            } else {
+                JOptionPane.showMessageDialog(this, "Could not initialize session in backend DB.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-
-            workoutIdLabel.setText("Workout ID: " + activeWorkoutId + "  |  Date: " + LocalDate.now());
-            durationField.setEnabled(false);
-            startBtn.setEnabled(false);
-
-            loadExercisesIntoCombo();
-
-            section2.setVisible(true);
-            revalidate();
-            repaint();
-
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Enter a valid positive number for duration.", "Error",
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please enter a valid number of minutes.", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    /** Step 2 — stage one exercise (shown in the table, not yet saved). */
-    private void addExerciseToStaging(){
-        try {
-            Exercise selected = (Exercise) exerciseCombo.getSelectedItem();
-            if (selected == null || selected.getExerciseId() <= 0) {
-                JOptionPane.showMessageDialog(this,
-                    "No valid exercise selected. Populate the exercises table first.",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+    private void addExerciseToStaging() {
+        Exercise selectedEx = (Exercise) exerciseCombo.getSelectedItem();
+        if (selectedEx == null || selectedEx.getExerciseId() == 0) {
+            JOptionPane.showMessageDialog(this, "Please select an exercise from the list.", "Selection Missing", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-            int    sets   = Integer.parseInt(setsField.getText().trim());
-            int    reps   = Integer.parseInt(repsField.getText().trim());
+        try {
+            int sets = Integer.parseInt(setsField.getText().trim());
+            int reps = Integer.parseInt(repsField.getText().trim());
             double weight = Double.parseDouble(weightField.getText().trim());
 
-            if (sets <= 0 || reps <= 0 || weight < 0) throw new NumberFormatException();
-
-            WorkoutExercise we = new WorkoutExercise(activeWorkoutId,
-                selected.getExerciseId(), sets, reps, weight);
+            WorkoutExercise we = new WorkoutExercise(activeWorkoutId, selectedEx.getExerciseId(), sets, reps, weight);
             stagedExercises.add(we);
 
+            //We display the structural String name 'selectedEx.getName()' inside row index 0 instead of the ID
             stagingModel.addRow(new Object[]{
-                selected.getName(), sets, reps, weight
+                selectedEx.getName(),
+                sets,
+                reps,
+                weight
             });
 
             setsField.setText("");
@@ -257,38 +177,18 @@ public class WorkoutPanel extends JPanel{
             weightField.setText("");
 
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this,
-                "Enter valid positive numbers for sets, reps, and weight.", "Error",
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Verify sets, reps, and weight format values are valid.", "Input Data Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void removeLastStaged(){
-        int rows = stagingModel.getRowCount();
-        if (rows == 0) {
-            JOptionPane.showMessageDialog(this, "Nothing to remove.");
+    private void finishWorkout() {
+        if (stagedExercises.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Add at least one exercise row entry before checking out.", "Empty Log", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        stagingModel.removeRow(rows - 1);
-        stagedExercises.remove(stagedExercises.size() - 1);
-    }
 
-    /** Step 3 — persist all staged exercises, reset UI to ready state. */
-    private void finishWorkout(){
-        if (stagedExercises.isEmpty()) {
-            int choice = JOptionPane.showConfirmDialog(this,
-                "No exercises added. Finish workout with no exercises?",
-                "Confirm", JOptionPane.YES_NO_OPTION);
-            if (choice != JOptionPane.YES_OPTION) return;
-        }
-
-        if (!stagedExercises.isEmpty()) {
-            workoutService.addExercisesToWorkout(activeWorkoutId, stagedExercises);
-        }
-
-        JOptionPane.showMessageDialog(this,
-            "Workout #" + activeWorkoutId + " saved with " + stagedExercises.size() + " exercise(s)!",
-            "Workout Complete", JOptionPane.INFORMATION_MESSAGE);
+        workoutService.addExercisesToWorkout(activeWorkoutId, stagedExercises);
+        JOptionPane.showMessageDialog(this, "Workout session logged successfully!", "Workout Saved", JOptionPane.INFORMATION_MESSAGE);
 
         resetToReady();
         loadHistory();
@@ -318,9 +218,6 @@ public class WorkoutPanel extends JPanel{
         for (Exercise ex : list) {
             exerciseCombo.addItem(ex);
         }
-        if (list.isEmpty()) {
-            exerciseCombo.addItem(new Exercise(0, "No exercises — run seed SQL", "", "", ""));
-        }
     }
 
     private void loadHistory() {
@@ -339,5 +236,6 @@ public class WorkoutPanel extends JPanel{
 
     public void refresh() {
         loadHistory();
+        loadExercisesIntoCombo();
     }
 }

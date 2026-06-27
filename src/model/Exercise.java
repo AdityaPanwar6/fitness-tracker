@@ -35,4 +35,10 @@ public class Exercise {
     public void setExerciseId(int exerciseId){
         this.exerciseId = exerciseId;
     }
+
+    //CRITICAL FIX: Tells Swing components to render the clear text name instead of the memory reference ID
+    @Override
+    public String toString() {
+        return this.name != null ? this.name : "";
+    }
 }
