@@ -9,7 +9,7 @@ public class RecordService {
 
     private PersonalRecordDAO recordDAO = new PersonalRecordDAO();
 
-    // Add record
+    //ADD RECORD
     public void addRecord(PersonalRecord record) {
 
         if (record.getUserId() <= 0 || record.getExerciseId() <= 0) {
@@ -20,12 +20,12 @@ public class RecordService {
         recordDAO.addRecord(record);
     }
 
-    // Get records of user
+    //GIET RECORD
     public List<PersonalRecord> getUserRecords(int userId) {
         return recordDAO.getRecordsByUser(userId);
     }
 
-    // Delete record
+    //DELETE RECORD
     public void deleteRecord(int recordId) {
         recordDAO.deleteRecord(recordId);
     }

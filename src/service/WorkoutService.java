@@ -12,7 +12,7 @@ public class WorkoutService {
     private WorkoutDAO workoutDAO = new WorkoutDAO();
     private WorkoutExerciseDAO workoutExerciseDAO = new WorkoutExerciseDAO();
 
-    // Create workout
+    //CREATE WORKOUT
     public int createWorkout(Workout workout) {
 
         if (workout.getUserId() <= 0) {
@@ -23,7 +23,7 @@ public class WorkoutService {
         return workoutDAO.addWorkout(workout);
     }
 
-    // Add exercises to workout
+    //ADD EXS TO WORKOUT
     public void addExercisesToWorkout(int workoutId, List<WorkoutExercise> exercises) {
 
         if (workoutId <= 0) {
@@ -39,12 +39,12 @@ public class WorkoutService {
         System.out.println("Exercises added to workout!");
     }
 
-    // Get workouts of user
+    //GET WORKOUT BY USER
     public List<Workout> getUserWorkouts(int userId) {
         return workoutDAO.getWorkoutsByUser(userId);
     }
 
-    // Get all workouts
+    //GET ALL WORKOUTS
     public List<Workout> getAllWorkouts() {
         return workoutDAO.getAllWorkouts();
     }

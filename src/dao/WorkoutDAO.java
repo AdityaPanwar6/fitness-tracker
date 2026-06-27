@@ -23,7 +23,6 @@ public class WorkoutDAO {
 
             stmt.executeUpdate();
 
-            // Get generated workout_id
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 return rs.getInt(1);

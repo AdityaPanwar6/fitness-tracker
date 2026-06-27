@@ -6,17 +6,17 @@ public class Workout{
     private int workoutId;
     private int userId;
     private LocalDate date;
-    private int duration;//in minutes
+    private int duration;
 
     public Workout(){}
 
-    //Constructor for existing workout
+    //EXISTING WORKOUT
     public Workout(int userId, LocalDate date, int duration){
         this.userId = userId;
         this.date = date;
         this.duration = duration;
     }
-    //Constructor for new workout(id required)
+    //NEW WORKOUT(id required)
     public Workout(int workoutId, int userId, LocalDate date, int duration){
         this.workoutId = workoutId;
         this.userId = userId;
@@ -24,13 +24,13 @@ public class Workout{
         this.duration = duration;
     }
 
-    //Getters
+    //GETTERS
     public int getWorkoutId(){return workoutId;}
     public int getUserId(){return userId;}
     public LocalDate getDate(){return date;}
     public int getDuration(){return duration;}
 
-    //Setters
+    //SETTERS
     public void setWorkoutId(int workoutId){
         this.workoutId = workoutId;
     }

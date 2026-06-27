@@ -9,7 +9,7 @@ public class ProgressService {
 
     private BodyProgressDAO bodyProgressDAO = new BodyProgressDAO();
 
-    // Add progress
+    //ADD PROG
     public void addProgress(BodyProgress progress) {
 
         if (progress.getUserId() <= 0) {
@@ -20,12 +20,12 @@ public class ProgressService {
         bodyProgressDAO.addProgress(progress);
     }
 
-    // Get progress of user
+    //GET PROG
     public List<BodyProgress> getUserProgress(int userId) {
         return bodyProgressDAO.getProgressByUser(userId);
     }
 
-    // Delete progress
+    //DELETE PROG
     public void deleteProgress(int progressId) {
         bodyProgressDAO.deleteProgress(progressId);
     }

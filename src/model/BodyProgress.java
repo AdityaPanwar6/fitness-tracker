@@ -11,6 +11,7 @@ public class BodyProgress {
     private double chest;
     private double waist;
 
+    //CONSTRUCTORS
     public BodyProgress(){}
 
     public BodyProgress(int userId, LocalDate date, double weight, double bodyFat, double chest, double waist){
@@ -22,7 +23,7 @@ public class BodyProgress {
         this.waist = waist;
     }
 
-    //Getters
+    //GETTERS
     public int getProgressId(){return progressId;}
     public int getUserId(){return userId;}
     public LocalDate getDate(){return date;}
@@ -31,7 +32,7 @@ public class BodyProgress {
     public double getChest(){return chest;}
     public double getWaist(){return waist;}
 
-    //Setters
+    //SETTERS
     public void setProgressId(int progressId){this.progressId = progressId;}
     public void setUserId(int userId){this.userId = userId;}
     public void setDate(LocalDate date){this.date = date;}
