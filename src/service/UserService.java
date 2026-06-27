@@ -29,4 +29,13 @@ public class UserService {
         if (email == null || password == null) return null;
         return userDAO.login(email, password);
     }
+
+    //UPDATE USER PROFILE
+    public void updateUserProfile(User user) {
+    if (user.getName() == null || user.getName().isBlank()) {
+        System.out.println("Profile name cannot be blank!");
+        return;
+    }
+    userDAO.updateUser(user);
+}
 }

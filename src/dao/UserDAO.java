@@ -62,4 +62,24 @@ public class UserDAO {
         }
         return null;//CREDENTIALS NOT MATCHED(LOGIN FAILED)
     }
+
+    //UPDATE USER
+    public void updateUser(User user) {
+    String query = "UPDATE users SET name = ?, age = ?, height = ?, weight = ?, goal = ? WHERE user_id = ?";
+    try {
+        Connection conn = DBConnection.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query);
+        
+        stmt.setString(1, user.getName());
+        stmt.setInt(2, user.getAge());
+        stmt.setDouble(3, user.getHeight());
+        stmt.setDouble(4, user.getWeight());
+        stmt.setString(5, user.getGoal());
+        stmt.setInt(6, user.getId());
+        
+        stmt.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 }
